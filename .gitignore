@@ -1,0 +1,11 @@
+/config/config.env
+/config/*.json
+.venv/
+venv/
+logs/
+*.pyc
+__pycache__/
+.DS_Store
+.env
+.idea/
+.vscode/
