@@ -175,11 +175,11 @@ class EmailProcessor:
                 self.logger.info(f"Found {len(email_ids)} messages from {target_sender}")
             else:
                 try:
-                    _, messages = mail.search(None, f'(SINCE {date}) UNSEEN')
+                    _, messages = mail.search(None, f'(SINCE {date})')
                     email_ids = messages[0].split() if messages and messages[0] else []
                 except Exception:
                     email_ids = []
-                self.logger.info(f"Unread emails in last 24 hours: {len(email_ids)}")
+                self.logger.info(f"Recent emails in last 24 hours: {len(email_ids)}")
 
             # Show details of up to 3 sample emails for debugging
             for idx, eid in enumerate(email_ids[:3]):
@@ -385,6 +385,7 @@ class EmailProcessor:
             'filename': attachment.get('filename'),
             'content_type': attachment.get('content_type'),
             'size': attachment.get('size'),
+            'data': attachment.get('data'),  # Pass through the attachment data
             'parsed_content': None,  # Will be populated by actual parsing logic
             'metadata': {
                 'parsed_at': datetime.now().isoformat(),
@@ -425,8 +426,17 @@ class EmailProcessor:
             }
             blob.metadata = metadata
             
+            # Debug logging for attachment data
+            self.logger.debug(f"Attachment details for {filename}:")
+            self.logger.debug(f"Content type: {parsed_attachment.get('content_type')}")
+            self.logger.debug(f"Original size: {parsed_attachment.get('size')} bytes")
+            encoded_data = parsed_attachment.get('data', '')
+            self.logger.debug(f"Base64 data length: {len(encoded_data)}")
+            
             # Upload the content
-            data = base64.b64decode(parsed_attachment.get('data', ''))
+            data = base64.b64decode(encoded_data)
+            self.logger.debug(f"Decoded data length: {len(data)} bytes")
+            
             blob.upload_from_string(
                 data,
                 content_type=parsed_attachment.get('content_type')
@@ -637,7 +647,7 @@ class EmailProcessor:
         for attempt in range(1, self.config['retry_attempts'] + 1):
             try:
                 self.logger.info(f"Processing attempt {attempt}/{self.config['retry_attempts']}")
-                self.process_emails()
+                self.process_emails(test_mode=False)  # Set to False to use real email data
                 self.logger.info("Processing completed successfully")
                 return
                 
