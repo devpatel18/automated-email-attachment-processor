@@ -73,16 +73,3 @@ To install the crontab using the helper script (will prompt):
 ```bash
 bash scripts/schedule_job.sh
 ```
-
-## SendGrid
-
-Make sure the SendGrid sender identity is verified and the API key has `Mail Send` permissions. If using a restricted API key, ensure the 'Mail Send' permission is included.
-
-## Notes & Security
-
-- Do not commit API keys or credentials. If any keys were committed, rotate them immediately.
-- Prefer using environment variables or a secret manager for production deployments.
-
-If you'd like, I can:
-- Install dependencies and run tests now.
-- Perform an end-to-end run and install the cron job on your desired schedule.
